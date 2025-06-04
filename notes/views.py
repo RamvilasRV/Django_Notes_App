@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from .models import User
+from .models import User, Note
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -37,8 +38,29 @@ def login(request):
 
 	return render(request, "login.html")
 
+@login_required
+def note_creation(request):
+	if request.method=="POST":
+		note_title = request.POST["note_title"]
+		note_content = request.POST["note_content"]
+		if Note.objects.filter(user=request.user, note_title=note_title):
+			messages.error(request, 	"Note with same title exists already")
+			return redirect("note_creation")
+		else:
+			new_note = Note(user=request.user, note_title=note_title, note_content=note_content)
+			new_note.save()
+		return redirect('note_creation')
 
-# def notes_creation(request):
+	return render(request, "note_creation.html")
+
+def note_list(request):
+	notes = Note.objects.filter(user=request.user).order_by('-created_on')
+	return render(request, 'note_list.html', {'notes': notes})
+
+
+def note_detail(request, note_id):
+	note = Note.objects.get(note_id=note_id, user=request.user)
+	return render(request, 'note_detail.html', {'note': note})
 
 
 
