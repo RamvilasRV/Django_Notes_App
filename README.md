@@ -1,4 +1,4 @@
 A notes app made with django.
 
-urls:
+url endpoints:
 /register, /login, /note_creation, /note_list
